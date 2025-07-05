@@ -23,25 +23,25 @@ const GAME_CONFIG = {
     scenarios: [
         {
             name: "Chapada Diamantina",
-            background: "scenario_1_chapada.png",
+            background: "./scenario_1_chapada.png",
             duration: 2000,
             obstacleRate: 0.015
         },
         {
             name: "Deserto Árabe",
-            background: "scenario_2_deserto.png",
+            background: "./scenario_2_deserto.png",
             duration: 2000,
             obstacleRate: 0.02
         },
         {
             name: "Cidade Mágica",
-            background: "scenario_3_cidade.png",
+            background: "./scenario_3_cidade.png",
             duration: 2000,
             obstacleRate: 0.025
         },
         {
             name: "Caverna do Tesouro",
-            background: "scenario_4_caverna_tesouro.png",
+            background: "./scenario_4_caverna_tesouro.png",
             duration: 1500,
             obstacleRate: 0.03
         }
@@ -118,7 +118,10 @@ class Player {
         
         // Carregar sprite
         this.sprite = new Image();
-        this.sprite.src = 'character_toy.png';
+        this.sprite.src = './character_toy.png';
+        this.sprite.onerror = () => {
+            console.error('Erro ao carregar imagem do personagem');
+        };
     }
     
     jump() {
@@ -142,12 +145,17 @@ class Player {
     }
     
     draw() {
-        if (this.sprite.complete) {
+        if (this.sprite.complete && this.sprite.naturalWidth > 0) {
             ctx.drawImage(this.sprite, this.x, this.y, this.width, this.height);
         } else {
             // Fallback se a imagem não carregou
             ctx.fillStyle = '#4ecdc4';
             ctx.fillRect(this.x, this.y, this.width, this.height);
+            // Desenhar um rosto simples
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(this.x + 15, this.y + 15, 8, 8); // olho esquerdo
+            ctx.fillRect(this.x + 35, this.y + 15, 8, 8); // olho direito
+            ctx.fillRect(this.x + 20, this.y + 35, 20, 5); // boca
         }
     }
     
@@ -173,8 +181,11 @@ class Obstacle {
         
         // Carregar sprite baseado no tipo
         this.sprite = new Image();
-        const sprites = ['obstacle_1_rock.png', 'obstacle_2_fruit.png', 'obstacle_3_lamp.png'];
+        const sprites = ['./obstacle_1_rock.png', './obstacle_2_fruit.png', './obstacle_3_lamp.png'];
         this.sprite.src = sprites[type % sprites.length];
+        this.sprite.onerror = () => {
+            console.error('Erro ao carregar imagem do obstáculo:', sprites[type % sprites.length]);
+        };
     }
     
     update() {
@@ -183,11 +194,12 @@ class Obstacle {
     }
     
     draw() {
-        if (this.sprite.complete) {
+        if (this.sprite.complete && this.sprite.naturalWidth > 0) {
             ctx.drawImage(this.sprite, this.x, this.y, this.width, this.height);
         } else {
             // Fallback se a imagem não carregou
-            ctx.fillStyle = '#ff6b6b';
+            const colors = ['#8B4513', '#FF6347', '#FFD700']; // marrom, vermelho, dourado
+            ctx.fillStyle = colors[this.type % colors.length];
             ctx.fillRect(this.x, this.y, this.width, this.height);
         }
     }
@@ -218,6 +230,9 @@ class Background {
         GAME_CONFIG.scenarios.forEach((scenario, index) => {
             const img = new Image();
             img.src = scenario.background;
+            img.onerror = () => {
+                console.error('Erro ao carregar imagem do cenário:', scenario.background);
+            };
             this.images[index] = img;
         });
     }
@@ -229,13 +244,21 @@ class Background {
     }
     
     draw() {
-        if (this.currentImage && this.currentImage.complete) {
+        if (this.currentImage && this.currentImage.complete && this.currentImage.naturalWidth > 0) {
             ctx.drawImage(this.currentImage, 0, 0, GAME_CONFIG.canvas.width, GAME_CONFIG.canvas.height);
         } else {
-            // Fallback gradient
+            // Fallback gradient baseado no cenário
+            const gradients = [
+                ['#87ceeb', '#98fb98'], // Chapada - azul para verde
+                ['#ffd700', '#ff6347'], // Deserto - dourado para laranja
+                ['#9370db', '#ff69b4'], // Cidade - roxo para rosa
+                ['#2f4f4f', '#ffd700']  // Caverna - cinza escuro para dourado
+            ];
+            
+            const currentGradient = gradients[gameState.currentScenario] || gradients[0];
             const gradient = ctx.createLinearGradient(0, 0, 0, GAME_CONFIG.canvas.height);
-            gradient.addColorStop(0, '#87ceeb');
-            gradient.addColorStop(1, '#98fb98');
+            gradient.addColorStop(0, currentGradient[0]);
+            gradient.addColorStop(1, currentGradient[1]);
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, GAME_CONFIG.canvas.width, GAME_CONFIG.canvas.height);
         }
