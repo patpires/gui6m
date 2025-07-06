@@ -8,7 +8,7 @@
 </head>
 <body>
     <!-- Tela de Início -->
-    <div id="start-screen" class="screen">
+    <div id="start-screen" class="screen hidden"> <!-- Adicionado 'hidden' para carregar elementos antes de mostrar -->
         <div class="game-container">
             <h1>Aventura na Chapada Diamantina</h1>
             <h2>Em busca do tesouro perdido</h2>
@@ -19,8 +19,10 @@
                 <h3>Como jogar:</h3>
                 <p>🎮 Use ESPAÇO ou toque na tela para pular</p>
                 <p>💎 Chegue ao final para encontrar o tesouro</p>
-                <p>⚠️ Cuidado com os obstáculos que caem!</p>
+                <p>⚠️ Cuidado com os obstáculos que surgem de cima e caem!</p> <!-- Texto atualizado -->
             </div>
+            <!-- Novo botão de som -->
+            <button id="sound-toggle-button" class="game-button sound-toggle">🔊 Som: ON</button> 
         </div>
     </div>
 
@@ -53,4 +55,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
