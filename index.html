@@ -4,74 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aventura na Chapada Diamantina - Jogo do Aladdin</title>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="gameContainer">
-        <!-- Tela de início -->
-        <div id="startScreen" class="screen">
-            <div class="title-container">
-                <h1 class="game-title">Aventura na Chapada Diamantina</h1>
-                <h2 class="game-subtitle">Em busca do tesouro perdido</h2>
-                <p class="game-description">
-                    Ajude nosso herói a atravessar os cenários mágicos da Chapada Diamantina 
-                    em busca do tesouro perdido! Desvie dos obstáculos e chegue até a caverna do tesouro.
-                </p>
-                <button id="startButton" class="game-button">Iniciar Aventura</button>
-                <div class="instructions">
-                    <p><strong>Como jogar:</strong></p>
-                    <p>🎮 Use ESPAÇO ou toque na tela para pular</p>
-                    <p>💎 Chegue ao final para encontrar o tesouro</p>
-                    <p>⚠️ Cuidado com os obstáculos que caem!</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tela do jogo -->
-        <div id="gameScreen" class="screen hidden">
-            <div id="gameUI">
-                <div id="scenarioInfo">
-                    <span id="currentScenario">Cenário 1: Chapada Diamantina</span>
-                </div>
-                <div id="gameStats">
-                    <span id="lifeIndicator">❤️ Vida: 1</span>
-                    <span id="progressIndicator">Progresso: 0%</span>
-                </div>
-            </div>
+    <!-- Tela de Início -->
+    <div id="start-screen" class="screen">
+        <div class="game-container">
+            <h1>Aventura na Chapada Diamantina</h1>
+            <h2>Em busca do tesouro perdido</h2>
+            <p>Ajude nosso herói a atravessar os cenários mágicos da Chapada Diamantina em busca do tesouro perdido! Desvie dos obstáculos e chegue até a caverna do tesouro.</p>
+            <button id="start-button" class="game-button">Iniciar Aventura</button>
             
-            <canvas id="gameCanvas" width="800" height="400"></canvas>
-            
-            <div id="mobileControls" class="mobile-only">
-                <button id="jumpButton" class="jump-btn">PULAR</button>
-            </div>
-        </div>
-
-        <!-- Tela de game over -->
-        <div id="gameOverScreen" class="screen hidden">
-            <div class="result-container">
-                <h2 class="result-title">Game Over!</h2>
-                <p class="result-message">Nosso herói não conseguiu completar a aventura desta vez...</p>
-                <button id="restartButton" class="game-button">Tentar Novamente</button>
-                <button id="backToMenuButton" class="game-button secondary">Voltar ao Menu</button>
-            </div>
-        </div>
-
-        <!-- Tela de vitória -->
-        <div id="victoryScreen" class="screen hidden">
-            <div class="result-container">
-                <h2 class="result-title victory">🎉 Parabéns! 🎉</h2>
-                <p class="result-message">Nosso herói encontrou o tesouro da Chapada Diamantina!</p>
-                <div class="victory-animation">
-                    <div class="treasure-icon">💎</div>
-                    <div class="sparkles">✨</div>
-                </div>
-                <button id="playAgainButton" class="game-button">Jogar Novamente</button>
-                <button id="backToMenuButton2" class="game-button secondary">Voltar ao Menu</button>
+            <div class="instructions">
+                <h3>Como jogar:</h3>
+                <p>🎮 Use ESPAÇO ou toque na tela para pular</p>
+                <p>💎 Chegue ao final para encontrar o tesouro</p>
+                <p>⚠️ Cuidado com os obstáculos que caem!</p>
             </div>
         </div>
     </div>
 
-    <script src="./script.js"></script>
+    <!-- Tela do Jogo -->
+    <div id="game-play-screen" class="screen hidden">
+        <div class="game-ui">
+            <div id="current-scenario" class="ui-element">Cenário 1: Chapada Diamantina</div>
+            <div class="ui-right">
+                <div id="life-indicator" class="ui-element">❤️ Vida: 1</div>
+                <div id="progress-indicator" class="ui-element">Progresso: 0%</div>
+            </div>
+        </div>
+        
+        <canvas id="game-canvas" width="800" height="400"></canvas>
+        
+        <div class="mobile-controls">
+            <button id="jump-button" class="mobile-button">PULAR</button>
+        </div>
+    </div>
+
+    <!-- Tela de Game Over -->
+    <div id="game-over-screen" class="screen hidden">
+        <div class="game-container">
+            <h1>Fim de Jogo!</h1>
+            <p id="final-message">Mensagem final aqui</p>
+            <button id="restart-button" class="game-button">Jogar Novamente</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
 
