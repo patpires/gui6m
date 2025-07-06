@@ -21,10 +21,10 @@ const GAME_CONFIG = {
     },
     // Nomes dos arquivos de cenário atualizados para GIFs
     scenarios: [
-        'scenario_1_chapada.gif',
-        'scenario_2_deserto.gif',
-        'scenario_3_cidade.gif',
-        'scenario_4_caverna_tesouro.gif'
+        'scenario_1_chapada.png',
+        'scenario_2_deserto.png',
+        'scenario_3_cidade.png',
+        'scenario_4_caverna_tesouro.png'
     ],
     obstacleImages: [
         'obstacle_1_rock.png',
