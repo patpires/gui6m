@@ -325,3 +325,197 @@ function gameLoop() {
 }
 
 // Funções de obstáculos, progressos e finalização continuam abaixo...
+
+
+function updateCharacter() {
+    const char = gameState.character;
+    const groundY = 0; // No chão, y = 0
+    
+    if (char.isJumping) {
+        char.velocityY -= GAME_CONFIG.character.gravity;
+        char.y += char.velocityY;
+        
+        if (char.y <= groundY) {
+            char.y = groundY;
+            char.velocityY = 0;
+            char.isJumping = false;
+            char.onGround = true;
+        }
+    } else {
+        char.y = groundY;
+    }
+}
+
+function updateObstacles() {
+    gameState.obstacles.forEach((obstacle, index) => {
+        obstacle.x -= GAME_CONFIG.obstacles.speed;
+        
+        // Remove obstáculos que saíram da tela
+        if (obstacle.x + GAME_CONFIG.obstacles.width < 0) {
+            gameState.obstacles.splice(index, 1);
+        }
+    });
+}
+
+function checkCollisions() {
+    const charX = GAME_CONFIG.character.x;
+    const groundY = GAME_CONFIG.canvas.height - GAME_CONFIG.character.height - 50;
+    const charY = groundY - gameState.character.y;
+    const charWidth = GAME_CONFIG.character.width;
+    const charHeight = GAME_CONFIG.character.height;
+    
+    gameState.obstacles.forEach(obstacle => {
+        if (charX < obstacle.x + GAME_CONFIG.obstacles.width &&
+            charX + charWidth > obstacle.x &&
+            charY < obstacle.y + GAME_CONFIG.obstacles.height &&
+            charY + charHeight > obstacle.y) {
+            
+            endGame('Game Over! Você colidiu com um obstáculo.');
+        }
+    });
+}
+
+function updateProgress() {
+    gameState.progress += 0.2;
+    
+    if (gameState.progress >= 100) {
+        gameState.currentScenario++;
+        gameState.progress = 0;
+        
+        if (gameState.currentScenario >= GAME_CONFIG.scenarios.length) {
+            endGame('Parabéns! Você encontrou o tesouro na Chapada Diamantina!');
+            return;
+        }
+        
+        // Aumentar dificuldade
+        GAME_CONFIG.obstacles.speed += 0.5;
+        GAME_CONFIG.obstacles.spawnRate = Math.max(1000, GAME_CONFIG.obstacles.spawnRate - 200);
+        
+        clearInterval(gameState.intervals.obstacleSpawn);
+        gameState.intervals.obstacleSpawn = setInterval(spawnObstacle, GAME_CONFIG.obstacles.spawnRate);
+    }
+    
+    updateUI();
+}
+
+function spawnObstacle() {
+    if (!gameState.isRunning) return;
+    
+    const obstacle = {
+        x: GAME_CONFIG.canvas.width,
+        y: Math.random() * (GAME_CONFIG.canvas.height - 150) + 50,
+        imageIndex: Math.floor(Math.random() * GAME_CONFIG.obstacleImages.length)
+    };
+    
+    gameState.obstacles.push(obstacle);
+}
+
+function jump() {
+    if (gameState.character.onGround && gameState.isRunning) {
+        gameState.character.isJumping = true;
+        gameState.character.onGround = false;
+        gameState.character.velocityY = GAME_CONFIG.character.jumpSpeed;
+        console.log('Personagem pulou!');
+    }
+}
+
+function render() {
+    const ctx = elements.ctx;
+    const canvas = elements.canvas;
+    
+    // Limpar canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Desenhar cenário de fundo
+    if (gameState.images.scenarios[gameState.currentScenario]) {
+        ctx.drawImage(gameState.images.scenarios[gameState.currentScenario], 0, 0, canvas.width, canvas.height);
+    } else {
+        // Fallback: gradiente de fundo
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#87CEEB');
+        gradient.addColorStop(1, '#98FB98');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    
+    // Desenhar personagem
+    const charX = GAME_CONFIG.character.x;
+    const groundY = GAME_CONFIG.canvas.height - GAME_CONFIG.character.height - 50;
+    const charY = groundY - gameState.character.y;
+    
+    // Debug: log das coordenadas do personagem
+    if (Math.random() < 0.01) { // Log apenas ocasionalmente para não sobrecarregar
+        console.log(`Personagem - X: ${charX}, Y: ${charY}, gameState.character.y: ${gameState.character.y}`);
+    }
+    
+    if (gameState.images.character && gameState.images.character.complete) {
+        ctx.drawImage(gameState.images.character, charX, charY, GAME_CONFIG.character.width, GAME_CONFIG.character.height);
+    } else {
+        // Fallback: retângulo colorido
+        ctx.fillStyle = '#FF6B6B';
+        ctx.fillRect(charX, charY, GAME_CONFIG.character.width, GAME_CONFIG.character.height);
+    }
+    
+    // Desenhar obstáculos
+    gameState.obstacles.forEach(obstacle => {
+        // Debug: log das coordenadas dos obstáculos
+        if (Math.random() < 0.01) {
+            console.log(`Obstáculo - X: ${obstacle.x}, Y: ${obstacle.y}`);
+        }
+        
+        const obstacleImg = gameState.images.obstacles[obstacle.imageIndex];
+        if (obstacleImg && obstacleImg.complete) {
+            ctx.drawImage(obstacleImg, obstacle.x, obstacle.y, GAME_CONFIG.obstacles.width, GAME_CONFIG.obstacles.height);
+        } else {
+            // Fallback: retângulo colorido
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(obstacle.x, obstacle.y, GAME_CONFIG.obstacles.width, GAME_CONFIG.obstacles.height);
+        }
+    });
+}
+
+function updateUI() {
+    const scenarioNames = [
+        'Cenário 1: Chapada Diamantina',
+        'Cenário 2: Deserto Árabe', 
+        'Cenário 3: Cidade Mágica',
+        'Cenário 4: Caverna do Tesouro'
+    ];
+    
+    elements.currentScenario.textContent = scenarioNames[gameState.currentScenario] || 'Cenário Desconhecido';
+    elements.lifeIndicator.textContent = `❤️ Vida: ${gameState.lives}`;
+    elements.progressIndicator.textContent = `Progresso: ${Math.floor(gameState.progress)}%`;
+}
+
+function endGame(message) {
+    console.log('Fim de jogo:', message);
+    
+    gameState.isRunning = false;
+    
+    // Limpar intervalos
+    if (gameState.intervals.gameLoop) {
+        clearInterval(gameState.intervals.gameLoop);
+        gameState.intervals.gameLoop = null;
+    }
+    if (gameState.intervals.obstacleSpawn) {
+        clearInterval(gameState.intervals.obstacleSpawn);
+        gameState.intervals.obstacleSpawn = null;
+    }
+    
+    // Mostrar tela de game over
+    elements.finalMessage.textContent = message;
+    elements.gamePlayScreen.classList.add('hidden');
+    elements.gameOverScreen.classList.remove('hidden');
+}
+
+function restartGame() {
+    console.log('Reiniciando jogo...');
+    
+    // Reset das configurações
+    GAME_CONFIG.obstacles.speed = 3;
+    GAME_CONFIG.obstacles.spawnRate = 2000;
+    
+    startGame();
+}
+
+
