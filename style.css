@@ -31,11 +31,20 @@ body {
     justify-content: center;
     align-items: center;
     transition: opacity 0.5s ease;
+    opacity: 1; /* Garantir visibilidade por padrão */
+    /* Remove 'display: none' para permitir transições de opacidade */
 }
 
+/* Ajuste para a classe 'hidden' para transição suave */
 .hidden {
-    display: none;
+    opacity: 0;
+    pointer-events: none; /* Desabilita interações quando invisível */
+    /* Posiciona fora da tela para garantir que não ocupe espaço */
+    position: absolute; 
+    top: -9999px; 
+    left: -9999px;
 }
+
 
 /* Container principal */
 .game-container {
@@ -94,6 +103,16 @@ h3 {
     background: linear-gradient(45deg, #ffd700, #ff6b6b);
 }
 
+/* Novo estilo para o botão de som */
+.game-button.sound-toggle {
+    background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+    margin-top: 10px;
+}
+.game-button.sound-toggle:hover {
+    background: linear-gradient(45deg, #45b7d1, #4ecdc4);
+}
+
+
 /* Instruções */
 .instructions {
     background: rgba(255, 255, 255, 0.1);
@@ -142,7 +161,7 @@ h3 {
     border: 3px solid #ffd700;
     border-radius: 15px;
     box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
-    background: linear-gradient(to bottom, #87CEEB, #98FB98);
+    background: linear-gradient(to bottom, #87CEEB, #98FB98); /* Fallback de fundo */
 }
 
 /* Controles mobile */
@@ -151,7 +170,6 @@ h3 {
     justify-content: center;
     margin-top: 20px;
 }
-
 .mobile-button {
     background: linear-gradient(45deg, #4ecdc4, #45b7d1);
     border: none;
@@ -172,7 +190,6 @@ h3 {
     transform: scale(0.95);
     background: linear-gradient(45deg, #45b7d1, #4ecdc4);
 }
-
 /* Responsividade */
 @media (max-width: 768px) {
     .game-container {
@@ -229,4 +246,3 @@ h3 {
         max-width: 300px;
     }
 }
-
