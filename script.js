@@ -1,4 +1,4 @@
-// ConfiguraÃ§Ãµes do jogo
+// Configurações do jogo
 const GAME_CONFIG = {
     canvas: {
         width: 800,
@@ -31,7 +31,7 @@ const GAME_CONFIG = {
     ]
 };
 
-// VariÃ¡veis do jogo
+// Variáveis do jogo
 let gameState = {
     isRunning: false,
     currentScenario: 0,
@@ -67,7 +67,7 @@ const elements = {
     finalMessage: null
 };
 
-// InicializaÃ§Ã£o
+// Inicialização
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM carregado, inicializando jogo...');
     initializeElements();
@@ -116,7 +116,7 @@ function loadImages() {
     gameState.images.character.onerror = () => onImageError('character_toy.png');
     gameState.images.character.src = 'character_toy.png';
     
-    // Carregar cenÃ¡rios
+    // Carregar cenários
     gameState.images.scenarios = [];
     GAME_CONFIG.scenarios.forEach((scenarioFile, index) => {
         const img = new Image();
@@ -126,7 +126,7 @@ function loadImages() {
         gameState.images.scenarios[index] = img;
     });
     
-    // Carregar obstÃ¡culos
+    // Carregar obstáculos
     gameState.images.obstacles = [];
     GAME_CONFIG.obstacleImages.forEach((obstacleFile, index) => {
         const img = new Image();
@@ -175,7 +175,7 @@ function startGame() {
     gameState.character.onGround = true;
     gameState.obstacles = [];
     
-    // MudanÃ§a de tela
+    // Mudança de tela
     elements.startScreen.classList.add('hidden');
     elements.gameOverScreen.classList.add('hidden');
     elements.gamePlayScreen.classList.remove('hidden');
@@ -202,13 +202,13 @@ function gameLoop() {
 
 function updateCharacter() {
     const char = gameState.character;
-    const groundY = GAME_CONFIG.canvas.height - GAME_CONFIG.character.height - 50;
+    const groundY = 0; // No chão, y = 0
     
     if (char.isJumping) {
         char.velocityY -= GAME_CONFIG.character.gravity;
-        char.y -= char.velocityY;
+        char.y += char.velocityY;
         
-        if (char.y >= groundY) {
+        if (char.y <= groundY) {
             char.y = groundY;
             char.velocityY = 0;
             char.isJumping = false;
@@ -223,7 +223,7 @@ function updateObstacles() {
     gameState.obstacles.forEach((obstacle, index) => {
         obstacle.x -= GAME_CONFIG.obstacles.speed;
         
-        // Remove obstÃ¡culos que saÃ­ram da tela
+        // Remove obstáculos que saíram da tela
         if (obstacle.x + GAME_CONFIG.obstacles.width < 0) {
             gameState.obstacles.splice(index, 1);
         }
@@ -232,7 +232,8 @@ function updateObstacles() {
 
 function checkCollisions() {
     const charX = GAME_CONFIG.character.x;
-    const charY = GAME_CONFIG.canvas.height - GAME_CONFIG.character.height - 50 - gameState.character.y;
+    const groundY = GAME_CONFIG.canvas.height - GAME_CONFIG.character.height - 50;
+    const charY = groundY - gameState.character.y;
     const charWidth = GAME_CONFIG.character.width;
     const charHeight = GAME_CONFIG.character.height;
     
@@ -242,7 +243,7 @@ function checkCollisions() {
             charY < obstacle.y + GAME_CONFIG.obstacles.height &&
             charY + charHeight > obstacle.y) {
             
-            endGame('Game Over! VocÃª colidiu com um obstÃ¡culo.');
+            endGame('Game Over! Você colidiu com um obstáculo.');
         }
     });
 }
@@ -255,7 +256,7 @@ function updateProgress() {
         gameState.progress = 0;
         
         if (gameState.currentScenario >= GAME_CONFIG.scenarios.length) {
-            endGame('ParabÃ©ns! VocÃª encontrou o tesouro na Chapada Diamantina!');
+            endGame('Parabéns! Você encontrou o tesouro na Chapada Diamantina!');
             return;
         }
         
@@ -298,7 +299,7 @@ function render() {
     // Limpar canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Desenhar cenÃ¡rio de fundo
+    // Desenhar cenário de fundo
     if (gameState.images.scenarios[gameState.currentScenario]) {
         ctx.drawImage(gameState.images.scenarios[gameState.currentScenario], 0, 0, canvas.width, canvas.height);
     } else {
@@ -312,23 +313,34 @@ function render() {
     
     // Desenhar personagem
     const charX = GAME_CONFIG.character.x;
-    const charY = canvas.height - GAME_CONFIG.character.height - 50 - gameState.character.y;
+    const groundY = GAME_CONFIG.canvas.height - GAME_CONFIG.character.height - 50;
+    const charY = groundY - gameState.character.y;
+    
+    // Debug: log das coordenadas do personagem
+    if (Math.random() < 0.01) { // Log apenas ocasionalmente para não sobrecarregar
+        console.log(`Personagem - X: ${charX}, Y: ${charY}, gameState.character.y: ${gameState.character.y}`);
+    }
     
     if (gameState.images.character && gameState.images.character.complete) {
         ctx.drawImage(gameState.images.character, charX, charY, GAME_CONFIG.character.width, GAME_CONFIG.character.height);
     } else {
-        // Fallback: retÃ¢ngulo colorido
+        // Fallback: retângulo colorido
         ctx.fillStyle = '#FF6B6B';
         ctx.fillRect(charX, charY, GAME_CONFIG.character.width, GAME_CONFIG.character.height);
     }
     
-    // Desenhar obstÃ¡culos
+    // Desenhar obstáculos
     gameState.obstacles.forEach(obstacle => {
+        // Debug: log das coordenadas dos obstáculos
+        if (Math.random() < 0.01) {
+            console.log(`Obstáculo - X: ${obstacle.x}, Y: ${obstacle.y}`);
+        }
+        
         const obstacleImg = gameState.images.obstacles[obstacle.imageIndex];
         if (obstacleImg && obstacleImg.complete) {
             ctx.drawImage(obstacleImg, obstacle.x, obstacle.y, GAME_CONFIG.obstacles.width, GAME_CONFIG.obstacles.height);
         } else {
-            // Fallback: retÃ¢ngulo colorido
+            // Fallback: retângulo colorido
             ctx.fillStyle = '#8B4513';
             ctx.fillRect(obstacle.x, obstacle.y, GAME_CONFIG.obstacles.width, GAME_CONFIG.obstacles.height);
         }
@@ -337,14 +349,14 @@ function render() {
 
 function updateUI() {
     const scenarioNames = [
-        'CenÃ¡rio 1: Chapada Diamantina',
-        'CenÃ¡rio 2: Deserto Ãrabe', 
-        'CenÃ¡rio 3: Cidade MÃ¡gica',
-        'CenÃ¡rio 4: Caverna do Tesouro'
+        'Cenário 1: Chapada Diamantina',
+        'Cenário 2: Deserto Árabe', 
+        'Cenário 3: Cidade Mágica',
+        'Cenário 4: Caverna do Tesouro'
     ];
     
-    elements.currentScenario.textContent = scenarioNames[gameState.currentScenario] || 'CenÃ¡rio Desconhecido';
-    elements.lifeIndicator.textContent = `â¤ï¸ Vida: ${gameState.lives}`;
+    elements.currentScenario.textContent = scenarioNames[gameState.currentScenario] || 'Cenário Desconhecido';
+    elements.lifeIndicator.textContent = `❤️ Vida: ${gameState.lives}`;
     elements.progressIndicator.textContent = `Progresso: ${Math.floor(gameState.progress)}%`;
 }
 
@@ -372,9 +384,10 @@ function endGame(message) {
 function restartGame() {
     console.log('Reiniciando jogo...');
     
-    // Reset das configuraÃ§Ãµes
+    // Reset das configurações
     GAME_CONFIG.obstacles.speed = 3;
     GAME_CONFIG.obstacles.spawnRate = 2000;
     
     startGame();
 }
+
