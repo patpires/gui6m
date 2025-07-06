@@ -7,7 +7,7 @@ const GAME_CONFIG = {
     character: {
         width: 60,
         height: 60,
-        x: 100, // Personagem fixo horizontalmente para o efeito de "runner"
+        x: 100, // Posição horizontal fixa do jogador
         jumpHeight: 120,
         jumpSpeed: 8,
         gravity: 0.5
@@ -15,9 +15,9 @@ const GAME_CONFIG = {
     obstacles: {
         width: 40,
         height: 40,
-        speed: 3, // Velocidade horizontal dos obstáculos (da direita para a esquerda)
+        speed: 3, // Velocidade horizontal dos obstáculos (direita para esquerda)
         spawnRate: 2000,
-        fallSpeed: 2 // Nova velocidade de queda dos obstáculos (de cima para baixo)
+        fallSpeed: 2 // Velocidade vertical (de cima para baixo)
     },
     scenarios: [
         'scenario_1_chapada.png',
@@ -58,7 +58,7 @@ let gameState = {
     }
 };
 
-// Elementos DOM
+// Elementos do DOM
 const elements = {
     startScreen: null,
     gamePlayScreen: null,
@@ -84,105 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.startScreen.classList.add('hidden');
 });
 
-// Funções de inicialização, eventos, jogo, e atualizações continuam aqui, conforme explicado antes.
-// Celebrei todas as funções para os seguintes pontos descritos: 
-Como o conteúdo do arquivo é grande e excede o limite de envio, vou fornecer **todos os arquivos completos** em uma série de mensagens, começando pelo **JavaScript (`script.js`)**. Após isso, enviarei o conteúdo completo do HTML e do CSS também.
-
-Vamos continuar! 😊
-
----
-
-### **Completo: `script.js`**
-Copie este código e salve como `script.js` no seu editor:
-
-```javascript
-// Configurações do jogo
-const GAME_CONFIG = {
-    canvas: {
-        width: 800,
-        height: 400
-    },
-    character: {
-        width: 60,
-        height: 60,
-        x: 100, // Personagem fixo horizontalmente para o efeito de "runner"
-        jumpHeight: 120,
-        jumpSpeed: 8,
-        gravity: 0.5
-    },
-    obstacles: {
-        width: 40,
-        height: 40,
-        speed: 3, // Velocidade horizontal dos obstáculos (da direita para a esquerda)
-        spawnRate: 2000,
-        fallSpeed: 2 // Nova velocidade de queda dos obstáculos (de cima para baixo)
-    },
-    scenarios: [
-        'scenario_1_chapada.png',
-        'scenario_2_deserto.png',
-        'scenario_3_cidade.png',
-        'scenario_4_caverna_tesouro.png'
-    ],
-    obstacleImages: [
-        'obstacle_1_rock.png',
-        'obstacle_2_fruit.png',
-        'obstacle_3_lamp.png'
-    ]
-};
-
-// Variáveis do jogo
-let gameState = {
-    isRunning: false,
-    currentScenario: 0,
-    progress: 0,
-    lives: 1,
-    character: {
-        y: 0,
-        velocityY: 0,
-        isJumping: false,
-        onGround: true
-    },
-    obstacles: [],
-    images: {},
-    audio: {
-        backgroundMusic: null,
-        jumpSound: null,
-        collisionSound: null
-    },
-    isSoundOn: true,
-    intervals: {
-        gameLoop: null,
-        obstacleSpawn: null
-    }
-};
-
-// Elementos DOM
-const elements = {
-    startScreen: null,
-    gamePlayScreen: null,
-    gameOverScreen: null,
-    startButton: null,
-    restartButton: null,
-    jumpButton: null,
-    canvas: null,
-    ctx: null,
-    currentScenario: null,
-    lifeIndicator: null,
-    progressIndicator: null,
-    finalMessage: null,
-    soundToggleButton: null
-};
-
-// Inicialização
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM carregado, inicializando jogo...');
-    initializeElements();
-    loadImages();
-    loadAudio();
-    setupEventListeners();
-    elements.startScreen.classList.add('hidden');
-});
-
+// Função para inicializar elementos do DOM
 function initializeElements() {
     elements.startScreen = document.getElementById('start-screen');
     elements.gamePlayScreen = document.getElementById('game-play-screen');
@@ -196,25 +98,21 @@ function initializeElements() {
     elements.lifeIndicator = document.getElementById('life-indicator');
     elements.progressIndicator = document.getElementById('progress-indicator');
     elements.finalMessage = document.getElementById('final-message');
-    elements.soundToggleButton = document.getElementById('sound-toggle-button'); 
+    elements.soundToggleButton = document.getElementById('sound-toggle-button');
 
-    // Ajustar tamanho do canvas
     elements.canvas.width = GAME_CONFIG.canvas.width;
     elements.canvas.height = GAME_CONFIG.canvas.height;
-
-    console.log('Elementos DOM inicializados');
 }
 
+// Função para carregar imagens
 function loadImages() {
-    console.log('Carregando imagens...');
     let loadedCount = 0;
     const totalImages = 1 + GAME_CONFIG.scenarios.length + GAME_CONFIG.obstacleImages.length;
 
     function onImageLoad() {
         loadedCount++;
         if (loadedCount === totalImages) {
-            console.log('Todas as imagens carregadas!');
-            elements.startScreen.classList.remove('hidden'); 
+            elements.startScreen.classList.remove('hidden');
         }
     }
 
@@ -222,7 +120,7 @@ function loadImages() {
         console.error(`Erro ao carregar imagem: ${src}`);
         loadedCount++;
         if (loadedCount === totalImages) {
-             elements.startScreen.classList.remove('hidden');
+            elements.startScreen.classList.remove('hidden');
         }
     }
 
@@ -239,6 +137,7 @@ function loadImages() {
         img.src = scenarioFile;
         gameState.images.scenarios[index] = img;
     });
+
     gameState.images.obstacles = [];
     GAME_CONFIG.obstacleImages.forEach((obstacleFile, index) => {
         const img = new Image();
@@ -249,25 +148,25 @@ function loadImages() {
     });
 }
 
+// Função para carregar áudio
 function loadAudio() {
-    gameState.audio.backgroundMusic = new Audio('background_music.mp3'); 
+    gameState.audio.backgroundMusic = new Audio('background_music.mp3');
     gameState.audio.backgroundMusic.loop = true;
     gameState.audio.backgroundMusic.volume = 0.5;
 
-    gameState.audio.jumpSound = new Audio('jump_sound.mp3'); 
+    gameState.audio.jumpSound = new Audio('jump_sound.mp3');
     gameState.audio.jumpSound.volume = 0.7;
 
-    gameState.audio.collisionSound = new Audio('collision_sound.mp3'); 
+    gameState.audio.collisionSound = new Audio('collision_sound.mp3');
     gameState.audio.collisionSound.volume = 0.8;
-
-    console.log('Áudios carregados.');
 }
 
+// Configurar eventos
 function setupEventListeners() {
     elements.startButton.addEventListener('click', startGame);
     elements.restartButton.addEventListener('click', restartGame);
     elements.jumpButton.addEventListener('click', jump);
-    elements.soundToggleButton.addEventListener('click', toggleSound); 
+    elements.soundToggleButton.addEventListener('click', toggleSound);
 
     document.addEventListener('keydown', (event) => {
         if (event.code === 'Space' && gameState.isRunning) {
@@ -275,247 +174,110 @@ function setupEventListeners() {
             jump();
         }
     });
-
-    elements.canvas.addEventListener('touchstart', (event) => {
-        if (gameState.isRunning) {
-            event.preventDefault();
-            jump();
-        }
-    });
 }
 
+// Alternar som
 function toggleSound() {
     gameState.isSoundOn = !gameState.isSoundOn;
     elements.soundToggleButton.textContent = gameState.isSoundOn ? '🔊 Som: ON' : '🔇 Som: OFF';
-    if (gameState.isSoundOn) { 
+    if (gameState.isSoundOn) {
         gameState.audio.backgroundMusic.play();
     } else {
         gameState.audio.backgroundMusic.pause();
     }
 }
 
+// Iniciar o jogo
 function startGame() {
     gameState.isRunning = true;
-    gameState.currentScenario = 0;
+    gameState.lives = 1;
     gameState.progress = 0;
-    gameState.lives = 1; 
     gameState.character.y = 0;
     gameState.character.velocityY = 0;
     elements.startScreen.classList.add('hidden');
     elements.gamePlayScreen.classList.remove('hidden');
-    updateUI();
 
     if (gameState.isSoundOn) {
         gameState.audio.backgroundMusic.currentTime = 0;
         gameState.audio.backgroundMusic.play();
     }
 
-    gameState.intervals.gameLoop = setInterval(gameLoop, 1000 / 60); 
+    gameState.intervals.gameLoop = setInterval(gameLoop, 1000 / 60);
     gameState.intervals.obstacleSpawn = setInterval(spawnObstacle, GAME_CONFIG.obstacles.spawnRate);
 }
 
+// Função do loop principal do jogo
 function gameLoop() {
     if (!gameState.isRunning) return;
 
-    updateCharacter();
     updateObstacles();
     checkCollisions();
-    updateProgress();
     render();
 }
 
-// Funções de obstáculos, progressos e finalização continuam abaixo...
-
-
-function updateCharacter() {
-    const char = gameState.character;
-    const groundY = 0; // No chão, y = 0
-    
-    if (char.isJumping) {
-        char.velocityY -= GAME_CONFIG.character.gravity;
-        char.y += char.velocityY;
-        
-        if (char.y <= groundY) {
-            char.y = groundY;
-            char.velocityY = 0;
-            char.isJumping = false;
-            char.onGround = true;
-        }
-    } else {
-        char.y = groundY;
-    }
-}
-
+// Atualizar os obstáculos
 function updateObstacles() {
     gameState.obstacles.forEach((obstacle, index) => {
         obstacle.x -= GAME_CONFIG.obstacles.speed;
-        
-        // Remove obstáculos que saíram da tela
-        if (obstacle.x + GAME_CONFIG.obstacles.width < 0) {
+        obstacle.y += GAME_CONFIG.obstacles.fallSpeed;
+
+        if (obstacle.x + GAME_CONFIG.obstacles.width < 0 || obstacle.y > GAME_CONFIG.canvas.height) {
             gameState.obstacles.splice(index, 1);
         }
     });
 }
 
+// Verificar colisões
 function checkCollisions() {
     const charX = GAME_CONFIG.character.x;
-    const groundY = GAME_CONFIG.canvas.height - GAME_CONFIG.character.height - 50;
-    const charY = groundY - gameState.character.y;
     const charWidth = GAME_CONFIG.character.width;
-    const charHeight = GAME_CONFIG.character.height;
-    
-    gameState.obstacles.forEach(obstacle => {
-        if (charX < obstacle.x + GAME_CONFIG.obstacles.width &&
+    const charYCanvas = GAME_CONFIG.canvas.height - GAME_CONFIG.character.height - gameState.character.y;
+
+    gameState.obstacles.forEach((obstacle) => {
+        if (
+            charX < obstacle.x + GAME_CONFIG.obstacles.width &&
             charX + charWidth > obstacle.x &&
-            charY < obstacle.y + GAME_CONFIG.obstacles.height &&
-            charY + charHeight > obstacle.y) {
-            
-            endGame('Game Over! Você colidiu com um obstáculo.');
+            charYCanvas < obstacle.y + GAME_CONFIG.obstacles.height
+        ) {
+            endGame('Você foi atingido por um obstáculo!');
         }
     });
 }
 
-function updateProgress() {
-    gameState.progress += 0.2;
-    
-    if (gameState.progress >= 100) {
-        gameState.currentScenario++;
-        gameState.progress = 0;
-        
-        if (gameState.currentScenario >= GAME_CONFIG.scenarios.length) {
-            endGame('Parabéns! Você encontrou o tesouro na Chapada Diamantina!');
-            return;
-        }
-        
-        // Aumentar dificuldade
-        GAME_CONFIG.obstacles.speed += 0.5;
-        GAME_CONFIG.obstacles.spawnRate = Math.max(1000, GAME_CONFIG.obstacles.spawnRate - 200);
-        
-        clearInterval(gameState.intervals.obstacleSpawn);
-        gameState.intervals.obstacleSpawn = setInterval(spawnObstacle, GAME_CONFIG.obstacles.spawnRate);
-    }
-    
-    updateUI();
-}
-
-function spawnObstacle() {
-    if (!gameState.isRunning) return;
-    
-    const obstacle = {
-        x: GAME_CONFIG.canvas.width,
-        y: Math.random() * (GAME_CONFIG.canvas.height - 150) + 50,
-        imageIndex: Math.floor(Math.random() * GAME_CONFIG.obstacleImages.length)
-    };
-    
-    gameState.obstacles.push(obstacle);
-}
-
-function jump() {
-    if (gameState.character.onGround && gameState.isRunning) {
-        gameState.character.isJumping = true;
-        gameState.character.onGround = false;
-        gameState.character.velocityY = GAME_CONFIG.character.jumpSpeed;
-        console.log('Personagem pulou!');
-    }
-}
-
+// Renderizar elementos no canvas
 function render() {
     const ctx = elements.ctx;
-    const canvas = elements.canvas;
-    
-    // Limpar canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Desenhar cenário de fundo
-    if (gameState.images.scenarios[gameState.currentScenario]) {
-        ctx.drawImage(gameState.images.scenarios[gameState.currentScenario], 0, 0, canvas.width, canvas.height);
-    } else {
-        // Fallback: gradiente de fundo
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, '#87CEEB');
-        gradient.addColorStop(1, '#98FB98');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, GAME_CONFIG.canvas.width, GAME_CONFIG.canvas.height);
+
+    const scenarioImage = gameState.images.scenarios[gameState.currentScenario];
+    if (scenarioImage && scenarioImage.complete) {
+        ctx.drawImage(scenarioImage, 0, 0, GAME_CONFIG.canvas.width, GAME_CONFIG.canvas.height);
     }
-    
-    // Desenhar personagem
-    const charX = GAME_CONFIG.character.x;
-    const groundY = GAME_CONFIG.canvas.height - GAME_CONFIG.character.height - 50;
-    const charY = groundY - gameState.character.y;
-    
-    // Debug: log das coordenadas do personagem
-    if (Math.random() < 0.01) { // Log apenas ocasionalmente para não sobrecarregar
-        console.log(`Personagem - X: ${charX}, Y: ${charY}, gameState.character.y: ${gameState.character.y}`);
-    }
-    
-    if (gameState.images.character && gameState.images.character.complete) {
-        ctx.drawImage(gameState.images.character, charX, charY, GAME_CONFIG.character.width, GAME_CONFIG.character.height);
-    } else {
-        // Fallback: retângulo colorido
-        ctx.fillStyle = '#FF6B6B';
-        ctx.fillRect(charX, charY, GAME_CONFIG.character.width, GAME_CONFIG.character.height);
-    }
-    
-    // Desenhar obstáculos
-    gameState.obstacles.forEach(obstacle => {
-        // Debug: log das coordenadas dos obstáculos
-        if (Math.random() < 0.01) {
-            console.log(`Obstáculo - X: ${obstacle.x}, Y: ${obstacle.y}`);
-        }
-        
-        const obstacleImg = gameState.images.obstacles[obstacle.imageIndex];
-        if (obstacleImg && obstacleImg.complete) {
-            ctx.drawImage(obstacleImg, obstacle.x, obstacle.y, GAME_CONFIG.obstacles.width, GAME_CONFIG.obstacles.height);
-        } else {
-            // Fallback: retângulo colorido
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(obstacle.x, obstacle.y, GAME_CONFIG.obstacles.width, GAME_CONFIG.obstacles.height);
-        }
+
+    const charYCanvas = GAME_CONFIG.canvas.height - GAME_CONFIG.character.height - gameState.character.y;
+    const characterImage = gameState.images.character;
+    ctx.drawImage(characterImage, GAME_CONFIG.character.x, charYCanvas, GAME_CONFIG.character.width, GAME_CONFIG.character.height);
+
+    gameState.obstacles.forEach((obstacle) => {
+        const obstacleImage = gameState.images.obstacles[obstacle.imageIndex];
+        ctx.drawImage(obstacleImage, obstacle.x, obstacle.y, GAME_CONFIG.obstacles.width, GAME_CONFIG.obstacles.height);
     });
 }
 
-function updateUI() {
-    const scenarioNames = [
-        'Cenário 1: Chapada Diamantina',
-        'Cenário 2: Deserto Árabe', 
-        'Cenário 3: Cidade Mágica',
-        'Cenário 4: Caverna do Tesouro'
-    ];
-    
-    elements.currentScenario.textContent = scenarioNames[gameState.currentScenario] || 'Cenário Desconhecido';
-    elements.lifeIndicator.textContent = `❤️ Vida: ${gameState.lives}`;
-    elements.progressIndicator.textContent = `Progresso: ${Math.floor(gameState.progress)}%`;
-}
-
+// Finalizar o jogo
 function endGame(message) {
-    console.log('Fim de jogo:', message);
-    
     gameState.isRunning = false;
-    
-    // Limpar intervalos
-    if (gameState.intervals.gameLoop) {
-        clearInterval(gameState.intervals.gameLoop);
-        gameState.intervals.gameLoop = null;
-    }
-    if (gameState.intervals.obstacleSpawn) {
-        clearInterval(gameState.intervals.obstacleSpawn);
-        gameState.intervals.obstacleSpawn = null;
-    }
-    
-    // Mostrar tela de game over
+    gameState.audio.backgroundMusic.pause();
+
+    clearInterval(gameState.intervals.gameLoop);
+    clearInterval(gameState.intervals.obstacleSpawn);
+
     elements.finalMessage.textContent = message;
-    elements.gamePlayScreen.classList.add('hidden');
     elements.gameOverScreen.classList.remove('hidden');
+    elements.gamePlayScreen.classList.add('hidden');
 }
 
+// Reiniciar o jogo
 function restartGame() {
-    console.log('Reiniciando jogo...');
-    
-    // Reset das configurações
-    GAME_CONFIG.obstacles.speed = 3;
-    GAME_CONFIG.obstacles.spawnRate = 2000;
-    
     startGame();
 }
-
-
